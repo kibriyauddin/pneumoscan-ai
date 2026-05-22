@@ -7,6 +7,13 @@ type Prediction = {
   confidence: number;
   normal_prob: number;
   pneumonia_prob: number;
+  original: string;
+  heatmap: string;
+  heatmap_title: string;
+  heatmap_info: string;
+  insight_title: string;
+  insight_body: string;
+  insight_note: string;
 };
 
 const API_BASE = "http://localhost:8000";
@@ -64,19 +71,12 @@ export function UploadAnalysis() {
       const fd = new FormData();
       fd.append("file", file);
 
-      const [predRes, heatRes] = await Promise.all([
-        fetch(`${API_BASE}/predict`, { method: "POST", body: fd }),
-        fetch(`${API_BASE}/heatmap`, { method: "POST", body: (() => { const f = new FormData(); f.append("file", file); return f; })() }),
-      ]);
+      const predRes = await fetch(`${API_BASE}/predict`, { method: "POST", body: fd });
 
       if (!predRes.ok) throw new Error("Prediction failed");
       const data: Prediction = await predRes.json();
       setResult(data);
-
-      if (heatRes.ok) {
-        const heatData: { heatmap: string; original?: string } = await heatRes.json();
-        setHeatmapUrl(`data:image/png;base64,${heatData.heatmap}`);
-      }
+      if (data.heatmap) setHeatmapUrl(`data:image/png;base64,${data.heatmap}`);
 
       // Animate progress bars
       setTimeout(() => setProgress({ normal: data.normal_prob, pneumonia: data.pneumonia_prob }), 100);
@@ -260,10 +260,16 @@ export function UploadAnalysis() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">Original X-Ray</div>
-                    {previewUrl && <img src={previewUrl} alt="Original" className="aspect-square w-full rounded-lg object-cover ring-1 ring-border" />}
+                    <img
+                      src={result.original ? `data:image/png;base64,${result.original}` : previewUrl ?? ""}
+                      alt="Original"
+                      className="aspect-square w-full rounded-lg object-cover ring-1 ring-border"
+                    />
                   </div>
                   <div>
-                    <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-cyan">AI Attention Heatmap</div>
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-cyan">
+                      {result.heatmap_title || "AI Attention Heatmap"}
+                    </div>
                     {heatmapUrl ? (
                       <img src={heatmapUrl} alt="Heatmap" className="aspect-square w-full rounded-lg object-cover ring-1 ring-border" />
                     ) : (
@@ -273,6 +279,37 @@ export function UploadAnalysis() {
                     )}
                   </div>
                 </div>
+
+                {result.heatmap_info && (
+                  <div className="rounded-xl border border-cyan/30 bg-cyan/5 p-4 text-sm text-muted-foreground">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-cyan/15 text-cyan">
+                        <ScanLine className="h-3.5 w-3.5" />
+                      </div>
+                      <p className="leading-relaxed">{result.heatmap_info}</p>
+                    </div>
+                  </div>
+                )}
+
+                {(result.insight_title || result.insight_body) && (
+                  <div
+                    className={`rounded-xl border p-5 ${
+                      isNormal ? "border-success/30 bg-success/5" : "border-danger/30 bg-danger/5"
+                    }`}
+                  >
+                    {result.insight_title && (
+                      <h4 className={`mb-2 text-lg font-semibold ${isNormal ? "text-success" : "text-danger"}`}>
+                        {result.insight_title}
+                      </h4>
+                    )}
+                    {result.insight_body && (
+                      <p className="text-sm leading-relaxed text-foreground/90">{result.insight_body}</p>
+                    )}
+                    {result.insight_note && (
+                      <p className="mt-3 text-xs italic text-muted-foreground">{result.insight_note}</p>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1.5">
