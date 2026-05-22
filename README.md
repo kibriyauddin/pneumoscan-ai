@@ -107,4 +107,4 @@ The frontend calls `http://localhost:8000` by default. Update `API_BASE` in `src
 
 ## Disclaimer
 
-This is a BTech final year academic project for educational purposes only. Not intended for clinical diagnosis or medical use. Always consult a qualified radiologist.
+This is an academic project for educational purposes only. Not intended for clinical diagnosis or medical use. Always consult a qualified radiologist.
