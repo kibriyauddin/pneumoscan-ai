@@ -21,9 +21,10 @@ export function HowItWorks() {
 
         <div className="grid gap-6 md:grid-cols-3">
           {steps.map((s, i) => (
-            <div
+            <a
               key={s.title}
-              className="group relative glass card-hover rounded-2xl p-8"
+              href="#upload"
+              className="group relative glass card-hover rounded-2xl p-8 block cursor-pointer"
             >
               <div className="absolute -top-4 left-8 flex h-8 w-8 items-center justify-center rounded-full gradient-bg text-sm font-bold text-primary-foreground">
                 {i + 1}
@@ -33,7 +34,7 @@ export function HowItWorks() {
               </div>
               <h3 className="mb-2 text-xl font-semibold text-foreground">{s.title}</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
-            </div>
+            </a>
           ))}
         </div>
       </div>
