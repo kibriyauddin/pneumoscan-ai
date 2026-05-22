@@ -41,6 +41,16 @@ export function UploadAnalysis() {
     handleFile(e.dataTransfer.files?.[0]);
   }, []);
 
+  const resetAll = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(null);
+    setPreviewUrl(null);
+    setResult(null);
+    setHeatmapUrl(null);
+    setProgress({ normal: 0, pneumonia: 0 });
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
   const analyze = async () => {
     if (!file) {
       toast.error("Please upload an X-ray image first.");
