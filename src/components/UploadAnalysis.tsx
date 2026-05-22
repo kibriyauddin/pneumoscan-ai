@@ -7,6 +7,13 @@ type Prediction = {
   confidence: number;
   normal_prob: number;
   pneumonia_prob: number;
+  original: string;
+  heatmap: string;
+  heatmap_title: string;
+  heatmap_info: string;
+  insight_title: string;
+  insight_body: string;
+  insight_note: string;
 };
 
 const API_BASE = "http://localhost:8000";
@@ -64,19 +71,12 @@ export function UploadAnalysis() {
       const fd = new FormData();
       fd.append("file", file);
 
-      const [predRes, heatRes] = await Promise.all([
-        fetch(`${API_BASE}/predict`, { method: "POST", body: fd }),
-        fetch(`${API_BASE}/heatmap`, { method: "POST", body: (() => { const f = new FormData(); f.append("file", file); return f; })() }),
-      ]);
+      const predRes = await fetch(`${API_BASE}/predict`, { method: "POST", body: fd });
 
       if (!predRes.ok) throw new Error("Prediction failed");
       const data: Prediction = await predRes.json();
       setResult(data);
-
-      if (heatRes.ok) {
-        const heatData: { heatmap: string; original?: string } = await heatRes.json();
-        setHeatmapUrl(`data:image/png;base64,${heatData.heatmap}`);
-      }
+      if (data.heatmap) setHeatmapUrl(`data:image/png;base64,${data.heatmap}`);
 
       // Animate progress bars
       setTimeout(() => setProgress({ normal: data.normal_prob, pneumonia: data.pneumonia_prob }), 100);
