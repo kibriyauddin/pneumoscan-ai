@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Upload as UploadIcon, ImageIcon, Loader2, ScanLine, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Upload as UploadIcon, ImageIcon, Loader2, ScanLine, AlertCircle, CheckCircle2, X, RefreshCw } from "lucide-react";
 
 type Prediction = {
   prediction: "NORMAL" | "PNEUMONIA";
@@ -40,6 +40,16 @@ export function UploadAnalysis() {
     setDragOver(false);
     handleFile(e.dataTransfer.files?.[0]);
   }, []);
+
+  const resetAll = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(null);
+    setPreviewUrl(null);
+    setResult(null);
+    setHeatmapUrl(null);
+    setProgress({ normal: 0, pneumonia: 0 });
+    if (inputRef.current) inputRef.current.value = "";
+  };
 
   const analyze = async () => {
     if (!file) {
@@ -118,13 +128,41 @@ export function UploadAnalysis() {
               />
 
               {previewUrl ? (
-                <div className="w-full">
-                  <img src={previewUrl} alt="X-ray preview" className="mx-auto max-h-72 rounded-lg object-contain" />
+                <div className="w-full" onClick={(e) => e.stopPropagation()}>
+                  <div className="relative inline-block mx-auto">
+                    <img src={previewUrl} alt="X-ray preview" className="mx-auto max-h-72 rounded-lg object-contain" />
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); resetAll(); }}
+                      aria-label="Remove image"
+                      className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-danger text-white shadow-lg hover:scale-110 transition"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                   <div className="mt-4 flex items-center justify-center gap-3 text-sm text-muted-foreground">
                     <ImageIcon className="h-4 w-4" />
                     <span className="font-medium text-foreground">{file?.name}</span>
                     <span>•</span>
                     <span>{file && formatSize(file.size)}</span>
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
+                      className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/20"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Upload another
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); resetAll(); }}
+                      className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </button>
                   </div>
                 </div>
               ) : (
