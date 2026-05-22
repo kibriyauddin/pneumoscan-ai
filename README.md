@@ -90,6 +90,21 @@ The frontend calls `http://localhost:8000` by default. Update `API_BASE` in `src
 
 ---
 
+## How the Model Works
+
+**Swin Transformer** (Shifted Window Transformer) is a hierarchical vision transformer that processes images in 4 stages, progressively reducing spatial resolution while increasing feature depth:
+
+- Splits the image into 4×4 patches → 56×56 tokens
+- Computes self-attention within local 7×7 windows (not globally) — making it efficient
+- Alternates between regular and shifted windows each layer so information flows across window boundaries
+- Downsamples between stages: 56×56 → 28×28 → 14×14 → 7×7
+
+**Why Swin over CNN?** CNNs only see local regions. Swin's attention captures long-range dependencies across both lung fields simultaneously — critical for detecting diffuse pneumonia patterns.
+
+**EigenCAM** generates the heatmap by taking the first principal component of the feature map at layer[-2] (14×14 resolution), giving a spatial map of where the model focused. Red/yellow = high attention, blue = low attention.
+
+---
+
 ## Disclaimer
 
 This is a BTech final year academic project for educational purposes only. Not intended for clinical diagnosis or medical use. Always consult a qualified radiologist.
