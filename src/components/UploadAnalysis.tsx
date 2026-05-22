@@ -75,6 +75,7 @@ export function UploadAnalysis() {
 
       if (!predRes.ok) throw new Error("Prediction failed");
       const data: Prediction = await predRes.json();
+      console.log("[PneumoScan] /predict response:", data);
       setResult(data);
       if (data.heatmap) setHeatmapUrl(`data:image/png;base64,${data.heatmap}`);
 
