@@ -16,7 +16,7 @@ type Prediction = {
   insight_note: string;
 };
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://kibriyauddin-pneumoscan-api.hf.space";
 
 export function UploadAnalysis() {
   const [file, setFile] = useState<File | null>(null);
