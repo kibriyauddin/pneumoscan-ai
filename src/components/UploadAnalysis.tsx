@@ -64,8 +64,8 @@ export function UploadAnalysis() {
       setResult(data);
 
       if (heatRes.ok) {
-        const blob = await heatRes.blob();
-        setHeatmapUrl(URL.createObjectURL(blob));
+        const heatData: { heatmap: string; original?: string } = await heatRes.json();
+        setHeatmapUrl(`data:image/png;base64,${heatData.heatmap}`);
       }
 
       // Animate progress bars
