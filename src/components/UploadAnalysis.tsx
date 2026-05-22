@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Upload as UploadIcon, ImageIcon, Loader2, ScanLine, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Upload as UploadIcon, ImageIcon, Loader2, ScanLine, AlertCircle, CheckCircle2, X, RefreshCw } from "lucide-react";
 
 type Prediction = {
   prediction: "NORMAL" | "PNEUMONIA";
