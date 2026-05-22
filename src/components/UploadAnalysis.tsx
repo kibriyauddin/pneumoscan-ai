@@ -73,7 +73,10 @@ export function UploadAnalysis() {
 
       const predRes = await fetch(`${API_BASE}/predict`, { method: "POST", body: fd });
 
-      if (!predRes.ok) throw new Error("Prediction failed");
+      if (!predRes.ok) {
+        const errData = await predRes.json().catch(() => ({}));
+        throw new Error(errData.detail || "Prediction failed");
+      }
       const data: Prediction = await predRes.json();
       console.log("[PneumoScan] /predict response:", data);
       setResult(data);
@@ -84,7 +87,7 @@ export function UploadAnalysis() {
       toast.success("Analysis complete");
     } catch (err) {
       console.error(err);
-      toast.error("Analysis failed. Make sure the API is running at " + API_BASE);
+      toast.error(err instanceof Error ? err.message : "Analysis failed. Make sure the API is running at " + API_BASE);
     } finally {
       setLoading(false);
     }
